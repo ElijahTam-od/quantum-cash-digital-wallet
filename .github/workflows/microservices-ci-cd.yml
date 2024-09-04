@@ -41,9 +41,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: set lower case owner name
+      # Set lower case owner name using PowerShell
+      - name: Set lower case owner name
+        id: set-owner
+        shell: pwsh
         run: |
-          run: echo "OWNER_LC=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          $OWNER_LC = $env:GITHUB_REPOSITORY_OWNER.ToLower()
+          echo "OWNER_LC=$OWNER_LC" >> $env:GITHUB_ENV
 
       # Log in to the GitHub Container Registry
       - name: Log in to the Container registry
