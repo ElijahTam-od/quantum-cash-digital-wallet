@@ -41,13 +41,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      # Set lower case owner name using PowerShell
-      - name: Set lower case owner name
-        id: set-owner
-        shell: pwsh
+      # Set lower case owner name
+      - name: Prepare lowercase repository name
         run: |
-          $OWNER_LC = $env:GITHUB_REPOSITORY_OWNER.ToLower()
-          echo "OWNER_LC=$OWNER_LC" >> $env:GITHUB_ENV
+          echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
 
       # Log in to the GitHub Container Registry
       - name: Log in to the Container registry
@@ -64,7 +61,7 @@ jobs:
           context: ./${{ matrix.service }}
           file: ./${{ matrix.service }}/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.OWNER_LC }}/${{ matrix.service }}:${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.REPO_LC }}-${{ matrix.service }}:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -89,4 +86,4 @@ jobs:
           kubectl apply -f ${{ matrix.service }}/kubernetes/service.yaml
 
           # Update the image of the deployment with the new version
-          kubectl set image deployment/${{ matrix.service }} ${{ matrix.service }}=${{ env.REGISTRY }}/${{ env.BASE_IMAGE_NAME }}-${{ matrix.service }}:${{ github.sha }}
+          kubectl set image deployment/${{ matrix.service }} ${{ matrix.service }}=${{ env.REGISTRY }}/${{ env.REPO_LC }}-${{ matrix.service }}:${{ github.sha }}
