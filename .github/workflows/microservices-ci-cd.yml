@@ -41,7 +41,7 @@ jobs:
       - name: Prepare lowercase repository name
         run: |
           echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
-          env:
+        env:
           OWNER: '${{ github.repository_owner }}'
 
       - name: Log in to the Container registry
