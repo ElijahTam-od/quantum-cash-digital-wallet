@@ -43,7 +43,7 @@ jobs:
 
       - name: set lower case owner name
         run: |
-          run: echo "OWNER_LC=${{ github.repository_owner | toLowerCase }}" >> $GITHUB_ENV
+          run: echo "OWNER_LC=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       # Log in to the GitHub Container Registry
       - name: Log in to the Container registry
