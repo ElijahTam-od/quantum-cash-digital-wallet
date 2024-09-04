@@ -35,16 +35,14 @@ jobs:
 
       - name: Debug environment variables
         run: |
-          echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
-          echo "GITHUB_ACTOR: $GITHUB_ACTOR"
+          echo '${{ github.repository_owner }}'
           echo "All environment variables:"
-          set
 
       - name: Prepare lowercase repository name
         run: |
-          REPO_LC=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
-          echo "REPO_LC=$REPO_LC" >> $GITHUB_ENV
-          echo "Lowercase repository name: $REPO_LC"
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+          env:
+          OWNER: '${{ github.repository_owner }}'
 
       - name: Log in to the Container registry
         uses: docker/login-action@v1
@@ -59,7 +57,7 @@ jobs:
           context: ./${{ matrix.service }}
           file: ./${{ matrix.service }}/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.REPO_LC }}-${{ matrix.service }}:${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.OWNER_LC }}-${{ matrix.service }}:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -79,4 +77,4 @@ jobs:
         run: |
           kubectl apply -f ${{ matrix.service }}/kubernetes/deployment.yaml
           kubectl apply -f ${{ matrix.service }}/kubernetes/service.yaml
-          kubectl set image deployment/${{ matrix.service }} ${{ matrix.service }}=${{ env.REGISTRY }}/${{ env.REPO_LC }}-${{ matrix.service }}:${{ github.sha }}
+          kubectl set image deployment/${{ matrix.service }} ${{ matrix.service }}=${{ env.REGISTRY }}/${{ env.OWNER_LC }}-${{ matrix.service }}:${{ github.sha }}
