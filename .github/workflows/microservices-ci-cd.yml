@@ -41,9 +41,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      # Set lower case owner name
-      - name: Set lower case owner name
-        run: echo "OWNER_LC=${{ github.repository_owner | toLowerCase }}" >> $GITHUB_ENV
+      - name: set lower case owner name
+        run: |
+          run: echo "OWNER_LC=${{ github.repository_owner | toLowerCase }}" >> $GITHUB_ENV
 
       # Log in to the GitHub Container Registry
       - name: Log in to the Container registry
@@ -57,10 +57,10 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: ./${{ matrix.service }}  # Context is now the service directory
-          file: ./${{ matrix.service }}/Dockerfile  # Dockerfile is relative to the context
+          context: ./${{ matrix.service }}
+          file: ./${{ matrix.service }}/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.env.OWNER_LC }}/${{ matrix.service }}:${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.OWNER_LC }}/${{ matrix.service }}:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -85,4 +85,4 @@ jobs:
           kubectl apply -f ${{ matrix.service }}/kubernetes/service.yaml
 
           # Update the image of the deployment with the new version
-          kubectl set image deployment/${{ matrix.service }} ${{ matrix.service }}=${{ env.REGISTRY }}/${{ github.env.OWNER_LC }}/${{ matrix.service }}:${{ github.sha }}
+          kubectl set image deployment/${{ matrix.service }} ${{ matrix.service }}=${{ env.REGISTRY }}/${{ env.BASE_IMAGE_NAME }}-${{ matrix.service }}:${{ github.sha }}
