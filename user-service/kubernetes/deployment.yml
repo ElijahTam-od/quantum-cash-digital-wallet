@@ -18,5 +18,10 @@ spec:
           image: ghcr.io/yourusername/your-repo-service1:latest  # This will be updated by kubectl set image
           ports:
             - containerPort: 8081
+          env:
+            - name: JWT_TOKEN
+              value: ${{ secrets.JWT_TOKEN }}
+            - name: JWT_EXPIRATION
+              value: ${{ secrets.JWT_EXPIRATION }}
       imagePullSecrets:
         - name: github-registry

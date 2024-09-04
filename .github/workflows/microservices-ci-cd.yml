@@ -57,3 +57,6 @@ jobs:
           kubectl apply -f ${{ matrix.service }}/kubernetes/deployment.yml
           kubectl apply -f ${{ matrix.service }}/kubernetes/service.yml
           kubectl set image deployment/${{ matrix.service }} ${{ matrix.service }}=${{ env.REGISTRY }}/${{ env.BASE_IMAGE_NAME }}-${{ matrix.service }}:${{ github.sha }}
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
