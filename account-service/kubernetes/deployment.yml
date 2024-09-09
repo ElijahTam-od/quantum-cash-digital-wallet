@@ -1,8 +1,7 @@
-# deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: account-service  # This should match the matrix service name
+  name: account-service
 spec:
   replicas: 1
   selector:
@@ -13,10 +12,52 @@ spec:
       labels:
         app: account-service
     spec:
+      initContainers:
+        - name: flyway-migration
+          image: flyway/flyway:7-alpine
+          command: ['flyway', 'migrate']
+          env:
+            - name: FLYWAY_URL
+              value: jdbc:postgresql://postgres-service:5432/quantumcashdb
+            - name: FLYWAY_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-user
+            - name: FLYWAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-password
+            - name: FLYWAY_SCHEMAS
+              value: account_service
+          volumeMounts:
+            - name: flyway-migrations
+              mountPath: /flyway/sql
       containers:
-        - name: account-service  # This should also match the matrix service name
-          image: ghcr.io/yourusername/your-repo-service1:latest  # This will be updated by kubectl set image
+        - name: account-service
+          image: ghcr.io/elijahtammy/quantum-cash-digital-wallet-account-service:latest
           ports:
             - containerPort: 8082
+          envFrom:
+            - secretRef:
+                name: springboot-env-secret
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres-service:5432/quantumcashdb
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-user
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-password
       imagePullSecrets:
         - name: github-registry
+      volumes:
+        - name: flyway-migrations
+          configMap:
+            name: account-service-flyway-migrations
