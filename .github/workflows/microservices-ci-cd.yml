@@ -54,17 +54,16 @@ jobs:
 
       - name: Create Kubernetes Secrets
         run: |
+          New-Item -Path "/mnt/wsl/data/postgres" -ItemType Directory -Force
 
-          mkdir -p /mnt/wsl/data/postgres
-
-          kubectl create secret generic springboot-env-secret \
-            --from-literal=JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }} \
-            --from-literal=JWT_SECRET=${{ secrets.JWT_SECRET }} \
+          kubectl create secret generic springboot-env-secret `
+            --from-literal="JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}" `
+            --from-literal="JWT_SECRET=${{ secrets.JWT_SECRET }}" `
             --dry-run=client -o yaml | kubectl apply -f -
 
-          kubectl create secret generic postgres-secret \
-            --from-literal=postgres-user=${{ secrets.POSTGRES_USER }} \
-            --from-literal=postgres-password=${{ secrets.POSTGRES_PASSWORD }} \
+          kubectl create secret generic postgres-secret `
+            --from-literal="postgres-user=${{ secrets.POSTGRES_USER }}" `
+            --from-literal="postgres-password=${{ secrets.POSTGRES_PASSWORD }}" `
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy PostgreSQL
