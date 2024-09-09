@@ -54,7 +54,7 @@ jobs:
 
       - name: Create Kubernetes Secrets
         run: |
-          New-Item -Path "/mnt/wsl/data/postgres" -ItemType Directory -Force
+          New-Item -Path "/postgres-pods" -ItemType Directory -Force
 
           kubectl create secret generic springboot-env-secret `
             --from-literal="JWT_EXPIRATION=${{ secrets.JWT_EXPIRATION }}" `
