@@ -52,6 +52,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Set Kubernetes Context
+        run: kubectl config use-context docker-desktop
+
       - name: Create Kubernetes Secrets
         run: |
           New-Item -Path "/postgres-pods" -ItemType Directory -Force
