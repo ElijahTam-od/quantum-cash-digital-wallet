@@ -75,6 +75,16 @@ jobs:
           kubectl apply -f shared/kubernetes/postgres-deployment.yaml
           kubectl apply -f shared/kubernetes/postgres-service.yaml
 
+      - name: Create Flyway migrations ConfigMap
+        run: |
+          echo "Creating ConfigMap for ${{ matrix.service }}"
+          ls -R ${{ matrix.service }}/src/main/resources/db/migration/
+          kubectl create configmap ${{ matrix.service }}-flyway-migrations \
+          --from-file=${{ matrix.service }}/src/main/resources/db/migration/ \
+          -o yaml --dry-run=client | kubectl apply -f -
+          echo "ConfigMap created. Listing ConfigMaps:"
+          kubectl get configmaps
+
       - name: Deploy to local Kubernetes
         run: |
           kubectl apply -f ${{ matrix.service }}/kubernetes/deployment.yaml
