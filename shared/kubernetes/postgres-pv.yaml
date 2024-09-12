@@ -11,7 +11,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: "C:/postgres-pods"
+    path: /mnt/data/postgres
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
