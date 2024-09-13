@@ -76,7 +76,7 @@ jobs:
           kubectl apply -f shared/kubernetes/postgres-service.yaml
 
       - name: Create Flyway migrations ConfigMap
-        shell: pwsh
+        shell: powershell
         run: |
           echo "Creating ConfigMap for ${{ matrix.service }}"
           # List migration files to ensure correct path
