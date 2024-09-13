@@ -73,9 +73,8 @@ jobs:
       - name: Deploy PostgreSQL
         run: |
           kubectl apply -f shared/kubernetes/postgres-deployment.yaml
+          kubectl apply -f shared/kubernetes/postgres-pv.yaml
           kubectl apply -f shared/kubernetes/postgres-service.yaml
-
- 
 
       - name: Deploy to local Kubernetes
         run: |
