@@ -72,7 +72,7 @@ jobs:
       - name: Deploy PostgreSQL
         run: |
           mkdir -p /mnt/data/postgres
-          kubectl apply -f shared/kubernetes/postgres-pv.yaml
+          ls /mnt/data/postgres
           kubectl apply -f shared/kubernetes/postgres-deployment.yaml
           kubectl apply -f shared/kubernetes/postgres-service.yaml
 
