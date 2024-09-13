@@ -57,6 +57,7 @@ jobs:
 
       - name: Create Kubernetes Secrets
         run: |
+          New-Item -Path "/mnt/data/postgres" -ItemType Directory -Force
           New-Item -Path "/postgres-pods" -ItemType Directory -Force
 
           kubectl create secret generic springboot-env-secret `
@@ -72,7 +73,6 @@ jobs:
       - name: Deploy PostgreSQL
         run: |
           mkdir -p /mnt/data/postgres
-          ls /mnt/data/postgres
           kubectl apply -f shared/kubernetes/postgres-deployment.yaml
           kubectl apply -f shared/kubernetes/postgres-service.yaml
 
