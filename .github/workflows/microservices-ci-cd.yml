@@ -76,6 +76,22 @@ jobs:
           kubectl apply -f shared/kubernetes/postgres-pv.yaml
           kubectl apply -f shared/kubernetes/postgres-service.yaml
 
+      - name: Create Flyway migrations ConfigMap
+        shell: pwsh
+        run: |
+          Write-Output "Creating ConfigMap for $($env:matrix_service)"
+          
+          # List migration files
+          Get-ChildItem -Path "$($env:matrix_service)/src/main/resources/db/migration/" -Recurse | ForEach-Object { $_.FullName }
+          
+          # Create ConfigMap
+          $configMapName = "$($env:matrix_service)-flyway-migrations"
+          $configMapCmd = "kubectl create configmap $configMapName --from-file=$($env:matrix_service)/src/main/resources/db/migration/ -o yaml --dry-run=client"
+          Invoke-Expression $configMapCmd | kubectl apply -f - -n quantum-cash
+          
+          Write-Output "ConfigMap created. Listing ConfigMaps:"
+          kubectl get configmaps -n quantum-cash
+
       - name: Deploy to local Kubernetes
         run: |
           kubectl apply -f ${{ matrix.service }}/kubernetes/deployment.yaml
