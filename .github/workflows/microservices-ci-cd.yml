@@ -76,11 +76,17 @@ jobs:
           kubectl apply -f shared/kubernetes/postgres-service.yaml
 
       - name: Create Flyway migrations ConfigMap
+        shell: pwsh
         run: |
           echo "Creating ConfigMap for ${{ matrix.service }}"
-          ls -R ${{ matrix.service }}/src/main/resources/db/migration/
-          $configMapCmd = "kubectl create configmap $(${{ matrix.service }}-flyway-migrations) --from-file=${{ matrix.service }}/src/main/resources/db/migration/ -o yaml --dry-run=client"
+          # List migration files to ensure correct path
+          Get-ChildItem -Path "${{ github.workspace }}/${{ matrix.service }}/src/main/resources/db/migration/" -Recurse
+          # Create ConfigMap
+          $migrationPath = "${{ github.workspace }}/${{ matrix.service }}/src/main/resources/db/migration/" -replace '\\', '/'
+          $configMapName = "${{ matrix.service }}-flyway-migrations"
+          $configMapCmd = "kubectl create configmap $configMapName --from-file=$migrationPath -o yaml --dry-run=client"
           Invoke-Expression $configMapCmd | kubectl apply -f -
+          # Verify ConfigMap creation
           echo "ConfigMap created. Listing ConfigMaps:"
           kubectl get configmaps
 
