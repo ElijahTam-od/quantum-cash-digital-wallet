@@ -79,18 +79,17 @@ jobs:
       - name: Create Flyway migrations ConfigMap
         shell: powershell
         run: |
-          Write-Output "Creating ConfigMap for $($env:matrix_service)"
-          
-          # List migration files
-          Get-ChildItem -Path "$($env:matrix_service)/src/main/resources/db/migration/" -Recurse | ForEach-Object { $_.FullName }
-          
+          echo "Creating ConfigMap for ${{ matrix.service }}"
+          # List migration files to ensure correct path
+          Get-ChildItem -Path "${{ github.workspace }}/${{ matrix.service }}/src/main/resources/db/migration/" -Recurse
           # Create ConfigMap
-          $configMapName = "$($env:matrix_service)-flyway-migrations"
-          $configMapCmd = "kubectl create configmap $configMapName --from-file=$($env:matrix_service)/src/main/resources/db/migration/ -o yaml --dry-run=client"
-          Invoke-Expression $configMapCmd | kubectl apply -f - -n quantum-cash
-          
-          Write-Output "ConfigMap created. Listing ConfigMaps:"
-          kubectl get configmaps -n quantum-cash
+          $migrationPath = "${{ github.workspace }}/${{ matrix.service }}/src/main/resources/db/migration/" -replace '\\', '/'
+          $configMapName = "${{ matrix.service }}-flyway-migrations"
+          $configMapCmd = "kubectl create configmap $configMapName --from-file=$migrationPath -o yaml --dry-run=client"
+          Invoke-Expression $configMapCmd | kubectl apply -f -
+          # Verify ConfigMap creation
+          echo "ConfigMap created. Listing ConfigMaps:"
+          kubectl get configmaps
 
       - name: Deploy to local Kubernetes
         run: |
