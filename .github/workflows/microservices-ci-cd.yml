@@ -75,20 +75,7 @@ jobs:
           kubectl apply -f shared/kubernetes/postgres-deployment.yaml
           kubectl apply -f shared/kubernetes/postgres-service.yaml
 
-      - name: Create Flyway migrations ConfigMap
-        shell: powershell
-        run: |
-          echo "Creating ConfigMap for ${{ matrix.service }}"
-          # List migration files to ensure correct path
-          Get-ChildItem -Path "${{ github.workspace }}/${{ matrix.service }}/src/main/resources/db/migration/" -Recurse
-          # Create ConfigMap
-          $migrationPath = "${{ github.workspace }}/${{ matrix.service }}/src/main/resources/db/migration/" -replace '\\', '/'
-          $configMapName = "${{ matrix.service }}-flyway-migrations"
-          $configMapCmd = "kubectl create configmap $configMapName --from-file=$migrationPath -o yaml --dry-run=client"
-          Invoke-Expression $configMapCmd | kubectl apply -f -
-          # Verify ConfigMap creation
-          echo "ConfigMap created. Listing ConfigMaps:"
-          kubectl get configmaps
+ 
 
       - name: Deploy to local Kubernetes
         run: |
